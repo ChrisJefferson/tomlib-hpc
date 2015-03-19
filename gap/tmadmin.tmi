@@ -85,12 +85,12 @@ BindGlobal( "ReadTom",
 DeclareAutoreadableVariables( "tomlib", "data/tmprimar.tom",
     [ "LIBTOMLIST" ] );
 
-
 #############################################################################
 ##
 #F  IsNameOfNoninstalledTableOfMarks( <string> )
 ##
 BindGlobal( "IsNameOfNoninstalledTableOfMarks", function( string )
+    atomic LIBTOMREGION do
     if LowercaseString( string ) in LIBTOMLIST.noninstalled then
       Info( InfoTom, 1,
             "The table of marks for ", string , " is not installed",
@@ -98,6 +98,7 @@ BindGlobal( "IsNameOfNoninstalledTableOfMarks", function( string )
       return true;
     fi;
     return false;
+    od;
     end );
 
 
@@ -109,7 +110,7 @@ BindGlobal( "IsNameOfNoninstalledTableOfMarks", function( string )
 ##
 InstallGlobalFunction( MakeLIBTOMLIST, function()
     local name, i, j, dir, nonexisting;
-
+    atomic LIBTOMREGION do
     # Check which files exist and are readable.
     dir:= DirectoriesPackageLibrary( "tomlib", "data" );
     nonexisting:= [];
@@ -143,6 +144,9 @@ InstallGlobalFunction( MakeLIBTOMLIST, function()
 
     LIBTOMLIST.namelist{ nonexisting } := List( nonexisting, x -> [] );
     LIBTOMLIST.fusions{ nonexisting }  := List( nonexisting, x -> [] );
+    MakeImmutable(LIBTOMLIST.namelist);
+    MakeImmutable(LIBTOMLIST.fusions);
+    od;
 end );
 
 
@@ -152,7 +156,7 @@ end );
 ##
 InstallGlobalFunction( TableOfMarksFromLibrary, function( string )
     local pos, name, file, number, filenumber;
-
+    atomic LIBTOMREGION do
     # first get the correct file
     name:=LowercaseString(string);
     pos:=Position(LIBTOMLIST.names,name);
@@ -181,8 +185,8 @@ InstallGlobalFunction( TableOfMarksFromLibrary, function( string )
           LIBTOMKNOWN.LOADSTATUS.(name)[2]:=
                             LIBTOMKNOWN.LOADSTATUS.(name)[2]-1;
           if LIBTOMKNOWN.LOADSTATUS.(name)[2] = 0 then
-            LIBTOMKNOWN.(name):=rec();
-            LIBTOMKNOWN.LOADSTATUS.(name)[1]:="unloaded";
+            LIBTOMKNOWN.(name):=Immutable(rec());
+            LIBTOMKNOWN.LOADSTATUS.(name)[1]:=Immutable("unloaded");
           fi;
         od;
       fi;
@@ -193,11 +197,12 @@ InstallGlobalFunction( TableOfMarksFromLibrary, function( string )
 
       # reset the load status
       if LIBTOMKNOWN.UNLOAD then
-        LIBTOMKNOWN.LOADSTATUS.(file):=["loaded",LIBTOMKNOWN.MAX];
+        LIBTOMKNOWN.LOADSTATUS.(file):=LockAndMigrateObj(["loaded",LIBTOMKNOWN.MAX],LIBTOMREGION);
       fi;
     fi;
 
     return LIBTOMKNOWN.(file)[number];
+    od;
     end );
 
 
@@ -228,8 +233,9 @@ end );
 ##
 InstallGlobalFunction( SetActualLibFileName, function( file )
     LIBTOMKNOWN.(file):= [];
-    LIBTOMKNOWN.ACTUAL:= file;
-    LIBTOMKNOWN.LOADSTATUS.(file):= [ "userloaded", 0 ];
+    LockAndMigrateObj(LIBTOMKNOWN.(file), LIBTOMREGION);
+    LIBTOMKNOWN.ACTUAL:= Immutable(file);
+    LIBTOMKNOWN.LOADSTATUS.(file):= Immutable([ "userloaded", 0 ]);
 end );
 
 #############################################################################
@@ -312,6 +318,7 @@ InstallGlobalFunction( LIBTOM, function( arg )
     # Make the table of marks object.
     record:= ConvertToLibTom( record );
 
+    MakeImmutable(record);
     # Set some attribute values.
     SetSize( UnderlyingGroup( record ),
              OrdersTom( record )[ Length( OrdersTom( record ) ) ] );
@@ -399,12 +406,13 @@ end );
 ##
 InstallGlobalFunction( AllLibTomNames, function()
     local result, file;
-
+    atomic LIBTOMREGION do
     result:=[];
     for file in LIBTOMLIST.namelist do
         Append(result,List(file,x->x[1]));
     od;
     return result;
+    od;
 end );
 
 

@@ -64,6 +64,8 @@ Revision.( "tomlib/gap/tmadmin_tmd" ) :=
 ##  </ManSection>
 ##  <#/GAPDoc>
 ##
+
+BindGlobal("LIBTOMREGION", NewLibraryRegion("libtom region"));
 DeclareGlobalVariable( "LIBTOMKNOWN" );
 #T As soon as flushable records are supported, change the following lines!
 #T InstallFlushableValue( LIBTOMKNOWN, rec(
@@ -72,7 +74,7 @@ InstallValue( LIBTOMKNOWN, rec(
     UNLOAD := true,
     MAX := 10,
   ) );
-
+LockAndMigrateObj(LIBTOMKNOWN, LIBTOMREGION);
 
 #############################################################################
 ##

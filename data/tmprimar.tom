@@ -585,7 +585,7 @@ LIBTOMLIST.namelist:=[
 ];
 
 LIBTOMLIST.files:=
-[ "tmalt1", "tmjank", "tmlin2", "tmjankmx", "tmunit", "tmlin2a", "tmsym1", 
+MakeImmutable([ "tmalt1", "tmjank", "tmlin2", "tmjankmx", "tmunit", "tmlin2a", "tmsym1", 
   "tmmath", "tmm24", "tmaltc", "tmmathmx", "tmlino", "tmealt", "tmesym", 
   "tmlinoa", "tmm24m5", "tmm24m7", "tmunita", "tmhsmclm", "tmhsmcl", 
   "tmsymc", "tmhe", "tmhemx", "tmsympa", "tm4l34s3", "tmalt1mx", "tms11", 
@@ -597,7 +597,7 @@ LIBTOMLIST.files:=
   "tmunitcm", "tm4l34", "tm4l34mx", "tmu43v4", "tmu43v4m", "tma12mx", 
   "tma12m4", "tma12m5", "tma12m9", "tma12", "tmg24", "tm3d42", "tm3d42m1", 
   "tmco3", "tmco3mx", "tmo8m2", "tmo8p2", "tmo8m2m1", "tmo82mx", "tmo8p2m4",
-  "tms12", "tma13", "tmhs2" ,"tmhe2", "tms13","tmsz83","tm2f42"];
+  "tms12", "tma13", "tmhs2" ,"tmhe2", "tms13","tmsz83","tm2f42"]);
 
 LIBTOMLIST.fusions:=[
 # file "tmalt1.tom"
@@ -1739,8 +1739,10 @@ LIBTOMLIST.fusions:=[
 [ [ "2F4(2)'", 350] ]]
 ];
 
+
 MakeLIBTOMLIST();
 
+LockAndMigrateObj(LIBTOMLIST, LIBTOMREGION);
 
 #############################################################################
 ##
